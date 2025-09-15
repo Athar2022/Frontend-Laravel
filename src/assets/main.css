@@ -1,6 +1,43 @@
 @import './base.css';
 @import "tailwindcss";
 
+
+@theme {
+  --color-blue-600: oklch(0.546 0.245 262.881);
+  --color-blue-700: oklch(0.488 0.243 265.638);
+  --color-gray-200: oklch(0.968 0.007 264.542);
+  --color-gray-300: oklch(0.902 0.023 258.338);
+  --color-gray-400: oklch(0.707 0.022 261.325);
+  --color-gray-500: oklch(0.552 0.027 264.364);
+  --color-gray-600: oklch(0.447 0.03 256.802);
+  --color-gray-700: oklch(0.373 0.034 259.733);
+  --color-gray-800: oklch(0.278 0.033 256.848);
+  --color-gray-900: oklch(0.21 0.034 264.665);
+  --color-green-500: oklch(0.723 0.219 149.579);
+  --color-red-500: oklch(0.637 0.237 25.331);
+  --color-yellow-500: oklch(0.769 0.188 86.047);
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6 dark:bg-gray-800;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+  }
+}
+
+@variant dark (&:where(.dark, .dark *));
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
