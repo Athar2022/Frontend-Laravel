@@ -32,59 +32,59 @@ const routes = [
     component: () => import('@/views/AidRequestsView.vue'),
     meta: { requiresAuth: true }
   },
-  {
-    path: '/aid-requests/create',
-    name: 'CreateAidRequest',
-    component: () => import('@/views/CreateAidRequestView.vue'),
-    meta: { requiresAuth: true, requiresBeneficiary: true }
-  },
-  {
-    path: '/aid-requests/:id',
-    name: 'AidRequestDetail',
-    component: () => import('@/views/AidRequestDetailView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/distributions',
-    name: 'Distributions',
-    component: () => import('@/views/DistributionsView.vue'),
-    meta: { requiresAuth: true, requiresVolunteer: true }
-  },
-  {
-    path: '/distributions/:id',
-    name: 'DistributionDetail',
-    component: () => import('@/views/DistributionDetailView.vue'),
-    meta: { requiresAuth: true, requiresVolunteer: true }
-  },
-  {
-    path: '/beneficiaries',
-    name: 'Beneficiaries',
-    component: () => import('@/views/BeneficiariesView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/volunteers',
-    name: 'Volunteers',
-    component: () => import('@/views/VolunteersView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: () => import('@/views/ProfileView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/notifications',
-    name: 'Notifications',
-    component: () => import('@/views/NotificationsView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: () => import('@/views/NotFoundView.vue')
-  }
+  // {
+  //   path: '/aid-requests/create',
+  //   name: 'CreateAidRequest',
+  //   component: () => import('@/views/CreateAidRequestView.vue'),
+  //   meta: { requiresAuth: true, requiresBeneficiary: true }
+  // },
+  // {
+  //   path: '/aid-requests/:id',
+  //   name: 'AidRequestDetail',
+  //   component: () => import('@/views/AidRequestDetailView.vue'),
+  //   meta: { requiresAuth: true }
+  // },
+  // {
+  //   path: '/distributions',
+  //   name: 'Distributions',
+  //   component: () => import('@/views/DistributionsView.vue'),
+  //   meta: { requiresAuth: true, requiresVolunteer: true }
+  // },
+  // {
+  //   path: '/distributions/:id',
+  //   name: 'DistributionDetail',
+  //   component: () => import('@/views/DistributionDetailView.vue'),
+  //   meta: { requiresAuth: true, requiresVolunteer: true }
+  // },
+  // {
+  //   path: '/beneficiaries',
+  //   name: 'Beneficiaries',
+  //   component: () => import('@/views/BeneficiariesView.vue'),
+  //   meta: { requiresAuth: true, requiresAdmin: true }
+  // },
+  // {
+  //   path: '/volunteers',
+  //   name: 'Volunteers',
+  //   component: () => import('@/views/VolunteersView.vue'),
+  //   meta: { requiresAuth: true, requiresAdmin: true }
+  // },
+  // {
+  //   path: '/profile',
+  //   name: 'Profile',
+  //   component: () => import('@/views/ProfileView.vue'),
+  //   meta: { requiresAuth: true }
+  // },
+  // {
+  //   path: '/notifications',
+  //   name: 'Notifications',
+  //   component: () => import('@/views/NotificationsView.vue'),
+  //   meta: { requiresAuth: true }
+  // },
+  // {
+  //   path: '/:pathMatch(.*)*',
+  //   name: 'NotFound',
+  //   component: () => import('@/views/NotFoundView.vue')
+  // }
 ]
 
 const router = createRouter({
