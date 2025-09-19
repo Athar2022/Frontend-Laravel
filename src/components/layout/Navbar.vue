@@ -235,10 +235,12 @@ const navigation = computed(() => {
     baseRoutes.push({ name: 'Distributions', to: { name: 'Distributions' } })
   }
 
-  if (user.value.role === 'admin') {
+ if (user.value.role === 'admin') {
     baseRoutes.push(
+      { name: 'Donations', to: { name: 'Donations' } },
       { name: 'Beneficiaries', to: { name: 'Beneficiaries' } },
-      { name: 'Volunteers', to: { name: 'Volunteers' } }
+      { name: 'Volunteers', to: { name: 'Volunteers' } },
+      { name: 'Users', to: { name: 'Users' } }
     )
   }
 
