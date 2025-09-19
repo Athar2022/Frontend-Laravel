@@ -11,9 +11,22 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
-    tailwindcss(),
-
+    tailwindcss()
   ],
+
+   server: {
+    port: 5173,
+    host: true 
+  },
+
+   build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
+  },
+
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

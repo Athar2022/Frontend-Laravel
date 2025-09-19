@@ -1,20 +1,22 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { api } from '@/services/api'
+import { authService } from '@/services/authService'
+import { userService } from '@/services/userService'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('token') || null)
   const isAuthenticated = computed(() => !!token.value)
+  const users = ref([])
+  const loading = ref(false)
 
   const login = async (credentials) => {
     try {
-      const response = await api.post('/login', credentials)
-      const { user: userData, token: authToken } = response.data
+      const response = await authService.login(credentials)
+      const { user: userData, token: authToken } = response
       
       user.value = userData
       token.value = authToken
-      
       localStorage.setItem('token', authToken)
       
       return { success: true }
@@ -28,12 +30,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   const register = async (userData) => {
     try {
-      const response = await api.post('/register', userData)
-      const { user: userData, token: authToken } = response.data
+      const response = await authService.register(userData)
+      const { user: newUser, token: authToken } = response
       
-      user.value = userData
+      user.value = newUser
       token.value = authToken
-      
       localStorage.setItem('token', authToken)
       
       return { success: true }
@@ -47,7 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const logout = async () => {
     try {
-      await api.post('/logout')
+      await authService.logout()
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
@@ -61,11 +62,56 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
     
     try {
-      const response = await api.get('/user')
-      user.value = response.data
+      const userData = await authService.getUser()
+      user.value = userData
     } catch (error) {
       console.error('Failed to fetch user:', error)
       logout()
+    }
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const usersData = await userService.getAll()
+      users.value = usersData
+    } catch (error) {
+      console.error('Failed to fetch users:', error)
+      throw error
+    }
+  }
+
+  const createUser = async (userData) => {
+    try {
+      const newUser = await userService.create(userData)
+      users.value.push(newUser)
+      return newUser
+    } catch (error) {
+      console.error('Failed to create user:', error)
+      throw error
+    }
+  }
+
+  const updateUser = async (id, userData) => {
+    try {
+      const updatedUser = await userService.update(id, userData)
+      const index = users.value.findIndex(u => u.id === id)
+      if (index !== -1) {
+        users.value[index] = updatedUser
+      }
+      return updatedUser
+    } catch (error) {
+      console.error('Failed to update user:', error)
+      throw error
+    }
+  }
+
+  const deleteUser = async (id) => {
+    try {
+      await userService.delete(id)
+      users.value = users.value.filter(u => u.id !== id)
+    } catch (error) {
+      console.error('Failed to delete user:', error)
+      throw error
     }
   }
 
@@ -73,9 +119,15 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     token,
     isAuthenticated,
+    users,
+    loading,
     login,
     register,
     logout,
-    fetchUser
+    fetchUser,
+    fetchUsers,
+    createUser,
+    updateUser,
+    deleteUser
   }
 })
