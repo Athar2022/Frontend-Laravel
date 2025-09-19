@@ -85,6 +85,31 @@ const routes = [
   //   name: 'NotFound',
   //   component: () => import('@/views/NotFoundView.vue')
   // }
+
+  {
+    path: '/donations',
+    name: 'Donations',
+    component: () => import('@/views/DonationsView.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  // {
+  //   path: '/distributions',
+  //   name: 'Distributions',
+  //   component: () => import('@/views/DistributionsView.vue'),
+  //   meta: { requiresAuth: true, requiresVolunteer: true }
+  // },
+  // {
+  //   path: '/notifications',
+  //   name: 'Notifications',
+  //   component: () => import('@/views/NotificationsView.vue'),
+  //   meta: { requiresAuth: true }
+  // },
+  // {
+  //   path: '/users',
+  //   name: 'Users',
+  //   component: () => import('@/views/UsersView.vue'),
+  //   meta: { requiresAuth: true, requiresAdmin: true }
+  // }
 ]
 
 const router = createRouter({
