@@ -30,7 +30,7 @@
           </div>
           <div class="ml-4">
             <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Aid Requests</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.aidRequests || 0 }}</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.aid_requests || 0 }}</p>
           </div>
         </div>
       </div>
@@ -61,19 +61,6 @@
             <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.volunteers || 0 }}</p>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div class="card">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Aid Requests by Status</h2>
-        <AidRequestsChart :data="chartData.aidRequests" />
-      </div>
-      
-      <div class="card">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Distributions</h2>
-        <DistributionsChart :data="chartData.distributions" />
       </div>
     </div>
 
@@ -109,15 +96,9 @@
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { api } from '@/services/api'
-import AidRequestsChart from '@/components/charts/AidRequestsChart.vue'
-import DistributionsChart from '@/components/charts/DistributionsChart.vue'
 
 const authStore = useAuthStore()
 const stats = ref({})
-const chartData = ref({
-  aidRequests: {},
-  distributions: {}
-})
 const recentActivity = ref([])
 
 const user = computed(() => authStore.user || {})
@@ -128,15 +109,27 @@ onMounted(async () => {
 
 async function fetchDashboardData() {
   try {
-    const [statsResponse, chartsResponse, activityResponse] = await Promise.all([
+    const [statsResponse] = await Promise.all([
       api.get('/dashboard/stats'),
-      api.get('/dashboard/charts'),
-      api.get('/dashboard/activity')
+      // يمكنك إضافة المزيد من الطلبات هنا عند الحاجة
     ])
 
     stats.value = statsResponse.data
-    chartData.value = chartsResponse.data
-    recentActivity.value = activityResponse.data
+    // للأنشطة الأخيرة، سنستخدم بيانات وهمية حتى تنشئ API لها
+    recentActivity.value = [
+      {
+        id: 1,
+        description: 'New aid request created',
+        userInitials: 'TU',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 2,
+        description: 'Donation approved',
+        userInitials: 'AD',
+        created_at: new Date(Date.now() - 86400000).toISOString()
+      }
+    ]
   } catch (error) {
     console.error('Failed to fetch dashboard data:', error)
     window.showToast('error', 'Error', 'Failed to load dashboard data')

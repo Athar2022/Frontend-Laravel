@@ -22,7 +22,8 @@ export const userService = {
   },
 
   async delete(id) {
-    await api.delete(`/users/${id}`)
+    const response = await api.delete(`/users/${id}`)
+    return response.data
   },
 
   async getByRole(role) {

@@ -3,7 +3,7 @@
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          Create your account
+          Create a new account
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           Or
@@ -11,7 +11,7 @@
             :to="{ name: 'Login' }"
             class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
           >
-            sign in to existing account
+            sign in to your account
           </router-link>
         </p>
       </div>
@@ -69,6 +69,50 @@
               placeholder="Confirm your password"
             />
           </div>
+          <div>
+            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Role
+            </label>
+            <select
+              id="role"
+              v-model="form.role"
+              required
+              class="input-field mt-1"
+            >
+              <option value="">Select your role</option>
+              <option value="beneficiary">Beneficiary</option>
+              <option value="volunteer">Volunteer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Phone Number (Optional)
+            </label>
+            <input
+              id="phone"
+              v-model="form.phone"
+              type="tel"
+              class="input-field mt-1"
+              placeholder="Enter your phone number"
+            />
+          </div>
+          <div>
+            <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Address (Optional)
+            </label>
+            <textarea
+              id="address"
+              v-model="form.address"
+              rows="3"
+              class="input-field mt-1"
+              placeholder="Enter your address"
+            ></textarea>
+          </div>
+        </div>
+
+        <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          {{ errorMessage }}
         </div>
 
         <div>
@@ -108,29 +152,45 @@ import { useAuthStore } from '@/stores/auth'
 const router = useRouter()
 const authStore = useAuthStore()
 const loading = ref(false)
+const errorMessage = ref('')
 
 const form = reactive({
   name: '',
   email: '',
   password: '',
-  password_confirmation: ''
+  password_confirmation: '',
+  role: '',
+  phone: '',
+  address: ''
 })
 
 async function handleRegister() {
+  loading.value = true
+  errorMessage.value = ''
+
+  // Validate password confirmation
   if (form.password !== form.password_confirmation) {
-    window.showToast('error', 'Error', 'Passwords do not match')
+    errorMessage.value = 'Passwords do not match'
+    loading.value = false
     return
   }
 
-  loading.value = true
-  
   const result = await authStore.register(form)
   
   if (result.success) {
-    window.showToast('success', 'Success', 'Account created successfully!')
+    // Show success message
+    if (window.showToast) {
+      window.showToast('success', 'Success', 'Account created successfully!')
+    }
+    
+    // Redirect to dashboard
     router.push({ name: 'Dashboard' })
   } else {
-    window.showToast('error', 'Error', result.message)
+    // Show error message
+    errorMessage.value = result.message
+    if (window.showToast) {
+      window.showToast('error', 'Error', result.message)
+    }
   }
   
   loading.value = false

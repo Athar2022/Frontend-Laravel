@@ -24,8 +24,7 @@
           <option value="">All Status</option>
           <option value="pending">Pending</option>
           <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-          <option value="completed">Completed</option>
+          <option value="denied">Denied</option>
         </select>
         
         <select v-model="filters.type" class="input-field w-full md:w-auto">
@@ -77,15 +76,15 @@
                 <div class="flex items-center">
                   <div class="h-10 w-10 flex-shrink-0">
                     <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                      {{ request.beneficiary_name.charAt(0).toUpperCase() }}
+                      {{ request.beneficiary?.name?.charAt(0)?.toUpperCase() || 'U' }}
                     </div>
                   </div>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-gray-900 dark:text-white">
-                      {{ request.beneficiary_name }}
+                      {{ request.beneficiary?.name || 'Unknown' }}
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">
-                      {{ request.beneficiary_email }}
+                      {{ request.beneficiary?.email || '' }}
                     </div>
                   </div>
                 </div>
@@ -124,10 +123,10 @@
                 </button>
                 <button 
                   v-if="['admin', 'volunteer'].includes(user.role) && request.status === 'pending'"
-                  @click="updateRequestStatus(request.id, 'rejected')"
+                  @click="updateRequestStatus(request.id, 'denied')"
                   class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                 >
-                  Reject
+                  Deny
                 </button>
               </td>
             </tr>
@@ -139,31 +138,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-gray-700 dark:text-gray-400">
-            Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} results
-          </div>
-          <div class="flex space-x-2">
-            <button 
-              @click="prevPage"
-              :disabled="pagination.currentPage === 1"
-              class="btn-secondary disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <button 
-              @click="nextPage"
-              :disabled="pagination.currentPage === pagination.lastPage"
-              class="btn-secondary disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -187,12 +161,12 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { api } from '@/services/api'
+import { useAidRequestStore } from '@/stores/aidRequest'
 import CreateRequestModal from '@/components/requests/CreateRequestModal.vue'
 import ViewRequestModal from '@/components/requests/ViewRequestModal.vue'
 
 const authStore = useAuthStore()
-const requests = ref([])
+const aidRequestStore = useAidRequestStore()
 const selectedRequest = ref(null)
 const showCreateModal = ref(false)
 const filters = ref({
@@ -200,21 +174,16 @@ const filters = ref({
   type: '',
   search: ''
 })
-const pagination = ref({
-  currentPage: 1,
-  perPage: 10,
-  total: 0,
-  lastPage: 1
-})
 
 const user = computed(() => authStore.user || {})
+const requests = computed(() => aidRequestStore.requests)
 const filteredRequests = computed(() => {
   return requests.value.filter(request => {
     const matchesStatus = !filters.value.status || request.status === filters.value.status
     const matchesType = !filters.value.type || request.type === filters.value.type
     const matchesSearch = !filters.value.search || 
       request.description.toLowerCase().includes(filters.value.search.toLowerCase()) ||
-      request.beneficiary_name.toLowerCase().includes(filters.value.search.toLowerCase())
+      (request.beneficiary?.name?.toLowerCase().includes(filters.value.search.toLowerCase()) || '')
     
     return matchesStatus && matchesType && matchesSearch
   })
@@ -225,28 +194,12 @@ onMounted(() => {
 })
 
 watch(filters, () => {
-  pagination.value.currentPage = 1
   fetchRequests()
 }, { deep: true })
 
 async function fetchRequests() {
   try {
-    const params = {
-      page: pagination.value.currentPage,
-      per_page: pagination.value.perPage,
-      ...filters.value
-    }
-
-    const response = await api.get('/aid-requests', { params })
-    requests.value = response.data.data
-    pagination.value = {
-      currentPage: response.data.current_page,
-      perPage: response.data.per_page,
-      total: response.data.total,
-      lastPage: response.data.last_page,
-      from: response.data.from,
-      to: response.data.to
-    }
+    await aidRequestStore.fetchRequests(filters.value)
   } catch (error) {
     console.error('Failed to fetch requests:', error)
     window.showToast('error', 'Error', 'Failed to load aid requests')
@@ -257,8 +210,7 @@ function getStatusClass(status) {
   const classes = {
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-    completed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+    denied: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
   }
   return classes[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
 }
@@ -283,7 +235,7 @@ function viewRequest(request) {
 
 async function updateRequestStatus(requestId, status) {
   try {
-    await api.patch(`/aid-requests/${requestId}`, { status })
+    await aidRequestStore.updateRequestStatus(requestId, status)
     window.showToast('success', 'Success', `Request ${status} successfully`)
     fetchRequests()
   } catch (error) {
@@ -301,19 +253,5 @@ function handleRequestCreated() {
 function handleRequestUpdated() {
   selectedRequest.value = null
   fetchRequests()
-}
-
-function nextPage() {
-  if (pagination.value.currentPage < pagination.value.lastPage) {
-    pagination.value.currentPage++
-    fetchRequests()
-  }
-}
-
-function prevPage() {
-  if (pagination.value.currentPage > 1) {
-    pagination.value.currentPage--
-    fetchRequests()
-  }
 }
 </script>
