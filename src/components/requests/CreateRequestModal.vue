@@ -149,10 +149,11 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { api } from '@/services/api'
+import { useAidRequestStore } from '@/stores/aidRequest'
 
 const emit = defineEmits(['close', 'created'])
 
+const aidRequestStore = useAidRequestStore()
 const loading = ref(false)
 const fileInput = ref(null)
 const uploadedFiles = ref([])
@@ -189,33 +190,28 @@ async function submitRequest() {
   loading.value = true
 
   try {
-    const formData = new FormData()
+    // Prepare form data with files
+    const requestData = {
+      type: form.type,
+      priority: form.priority,
+      description: form.description,
+      quantity: form.quantity,
+      urgency_date: form.urgency_date,
+      documents: uploadedFiles.value
+    }
+
+    const result = await aidRequestStore.createRequest(requestData)
     
-    // Add form fields
-    Object.keys(form).forEach(key => {
-      if (form[key]) {
-        formData.append(key, form[key])
-      }
-    })
-
-    // Add uploaded files
-    uploadedFiles.value.forEach(file => {
-      formData.append('documents[]', file)
-    })
-
-    const response = await api.post('/aid-requests', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    window.showToast('success', 'Success', 'Aid request created successfully')
-    emit('created')
-    emit('close')
+    if (result.success) {
+      window.showToast('success', 'Success', 'Aid request created successfully')
+      emit('created')
+      emit('close')
+    } else {
+      window.showToast('error', 'Error', result.error || 'Failed to create aid request')
+    }
   } catch (error) {
     console.error('Failed to create aid request:', error)
-    const message = error.response?.data?.message || 'Failed to create aid request'
-    window.showToast('error', 'Error', message)
+    window.showToast('error', 'Error', 'Failed to create aid request')
   } finally {
     loading.value = false
   }

@@ -45,6 +45,10 @@
           </div>
         </div>
 
+        <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          {{ errorMessage }}
+        </div>
+
         <div>
           <button
             type="submit"
@@ -69,6 +73,13 @@
             {{ loading ? 'Signing in...' : 'Sign in' }}
           </button>
         </div>
+
+        <!-- Test credentials hint -->
+        <div class="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900 rounded-md">
+          <p class="text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>For testing:</strong> Use any email and password to login
+          </p>
+        </div>
       </form>
     </div>
   </div>
@@ -82,6 +93,7 @@ import { useAuthStore } from '@/stores/auth'
 const router = useRouter()
 const authStore = useAuthStore()
 const loading = ref(false)
+const errorMessage = ref('')
 
 const form = reactive({
   email: '',
@@ -90,14 +102,24 @@ const form = reactive({
 
 async function handleLogin() {
   loading.value = true
-  
+  errorMessage.value = ''
+
   const result = await authStore.login(form)
   
   if (result.success) {
-    window.showToast('success', 'Success', 'Logged in successfully!')
+    // Show success message
+    if (window.showToast) {
+      window.showToast('success', 'Success', 'Logged in successfully!')
+    }
+    
+    // Redirect to dashboard
     router.push({ name: 'Dashboard' })
   } else {
-    window.showToast('error', 'Error', result.message)
+    // Show error message
+    errorMessage.value = result.message
+    if (window.showToast) {
+      window.showToast('error', 'Error', result.message)
+    }
   }
   
   loading.value = false
