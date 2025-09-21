@@ -22,7 +22,8 @@ export const distributionService = {
   },
 
   async delete(id) {
-    await api.delete(`/distributions/${id}`)
+    const response = await api.delete(`/distributions/${id}`)
+    return response.data
   },
 
   async updateStatus(id, status) {
