@@ -30,10 +30,10 @@ onMounted(() => {
         datasets: [{
           data: Object.values(props.data),
           backgroundColor: [
-            '#10B981', 
-            '#EF4444', 
-            '#F59E0B', 
-            '#3B82F6'  
+            '#10B981', // green
+            '#EF4444', // red
+            '#F59E0B', // yellow
+            '#3B82F6'  // blue
           ]
         }]
       },
