@@ -101,12 +101,13 @@ const routes = [
     component: () => import('@/views/NotificationsView.vue'),
     meta: { requiresAuth: true }
   },
+  
   {
-    path: '/users',
-    name: 'Users',
-    component: () => import('@/views/UsersView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true }
-  }
+  path: '/users',
+  name: 'Users',
+  component: () => import('@/views/UsersView.vue'),
+  meta: { requiresAuth: true, requiresAdmin: true }
+}
 ];
 
 const router = createRouter({
