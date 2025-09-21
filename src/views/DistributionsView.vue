@@ -6,9 +6,9 @@
         <p class="text-gray-600 dark:text-gray-400">Track and manage aid distributions</p>
       </div>
       <button 
+        v-if="user.role === 'admin'"
         @click="showCreateModal = true"
         class="btn-primary"
-        v-if="user.role === 'admin'"
       >
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -77,7 +77,7 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900 dark:text-white">
-                  {{ distribution.donation?.type }} (x{{ distribution.donation?.quantity }})
+                  {{ distribution.donation?.type }} ({{ distribution.donation?.quantity }})
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">
                   {{ distribution.donation?.donor_name }}
@@ -157,7 +157,7 @@
             <select v-model="newDistribution.donation_id" required class="input-field">
               <option value="">Select donation</option>
               <option v-for="donation in approvedDonations" :key="donation.id" :value="donation.id">
-                {{ donation.type }} (x{{ donation.quantity }}) - {{ donation.donor_name }}
+                {{ donation.type }} ({{ donation.quantity }}) - {{ donation.donor_name }}
               </option>
             </select>
           </div>
@@ -206,8 +206,8 @@ onMounted(async () => {
 
 function getStatusClass(status) {
   const classes = {
-    assigned: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    in_progress: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    assigned: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    in_progress: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
   }
   return classes[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
