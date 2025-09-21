@@ -4,90 +4,111 @@ import { distributionService } from '@/services/distributionService'
 
 export const useDistributionStore = defineStore('distribution', () => {
   const distributions = ref([])
-  const volunteerDistributions = ref([])
   const currentDistribution = ref(null)
   const loading = ref(false)
+  const error = ref(null)
 
   const fetchDistributions = async () => {
     loading.value = true
+    error.value = null
     try {
-      distributions.value = await distributionService.getAll()
-    } catch (error) {
-      console.error('Failed to fetch distributions:', error)
-      throw error
+      let data
+      if (authStore.user?.role === 'volunteer') {
+        data = await distributionService.getVolunteerDistributions()
+      } else {
+        data = await distributionService.getAll()
+      }
+      distributions.value = data
+    } catch (err) {
+      error.value = err.response?.data?.message || 'Failed to fetch distributions'
+      console.error('Error fetching distributions:', err)
     } finally {
       loading.value = false
     }
   }
 
-  const fetchDistribution = async (id) => {
+  const fetchDistributionById = async (id) => {
     loading.value = true
+    error.value = null
     try {
-      currentDistribution.value = await distributionService.getById(id)
-    } catch (error) {
-      console.error('Failed to fetch distribution:', error)
-      throw error
+      const data = await distributionService.getById(id)
+      currentDistribution.value = data
+    } catch (err) {
+      error.value = err.response?.data?.message || 'Failed to fetch distribution'
+      console.error('Error fetching distribution:', err)
     } finally {
       loading.value = false
     }
   }
 
   const createDistribution = async (distributionData) => {
+    loading.value = true
+    error.value = null
     try {
-      const distribution = await distributionService.create(distributionData)
-      distributions.value.push(distribution)
-      return distribution
-    } catch (error) {
-      console.error('Failed to create distribution:', error)
-      throw error
+      const data = await distributionService.create(distributionData)
+      distributions.value.unshift(data)
+      return { success: true, data }
+    } catch (err) {
+      error.value = err.response?.data?.message || 'Failed to create distribution'
+      console.error('Error creating distribution:', err)
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
     }
   }
 
   const updateDistribution = async (id, distributionData) => {
+    loading.value = true
+    error.value = null
     try {
-      const distribution = await distributionService.update(id, distributionData)
-      const index = distributions.value.findIndex(d => d.id === id)
+      const data = await distributionService.update(id, distributionData)
+      const index = distributions.value.findIndex(dist => dist.id === id)
       if (index !== -1) {
-        distributions.value[index] = distribution
+        distributions.value[index] = data
       }
-      return distribution
-    } catch (error) {
-      console.error('Failed to update distribution:', error)
-      throw error
-    }
-  }
-
-  const deleteDistribution = async (id) => {
-    try {
-      await distributionService.delete(id)
-      distributions.value = distributions.value.filter(d => d.id !== id)
-    } catch (error) {
-      console.error('Failed to delete distribution:', error)
-      throw error
+      if (currentDistribution.value && currentDistribution.value.id === id) {
+        currentDistribution.value = data
+      }
+      return { success: true, data }
+    } catch (err) {
+      error.value = err.response?.data?.message || 'Failed to update distribution'
+      console.error('Error updating distribution:', err)
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
     }
   }
 
   const updateDistributionStatus = async (id, status) => {
+    loading.value = true
+    error.value = null
     try {
-      const distribution = await distributionService.updateStatus(id, status)
-      const index = distributions.value.findIndex(d => d.id === id)
+      const data = await distributionService.updateStatus(id, status)
+      const index = distributions.value.findIndex(dist => dist.id === id)
       if (index !== -1) {
-        distributions.value[index] = distribution
+        distributions.value[index] = data
       }
-      return distribution
-    } catch (error) {
-      console.error('Failed to update distribution status:', error)
-      throw error
+      return { success: true, data }
+    } catch (err) {
+      error.value = err.response?.data?.message || 'Failed to update distribution status'
+      console.error('Error updating distribution status:', err)
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
     }
   }
 
-  const fetchVolunteerDistributions = async () => {
+  const deleteDistribution = async (id) => {
     loading.value = true
+    error.value = null
     try {
-      volunteerDistributions.value = await distributionService.getVolunteerDistributions()
-    } catch (error) {
-      console.error('Failed to fetch volunteer distributions:', error)
-      throw error
+      await distributionService.delete(id)
+      distributions.value = distributions.value.filter(dist => dist.id !== id)
+      return { success: true }
+    } catch (err) {
+      error.value = err.response?.data?.message || 'Failed to delete distribution'
+      console.error('Error deleting distribution:', err)
+      return { success: false, error: error.value }
     } finally {
       loading.value = false
     }
@@ -95,15 +116,14 @@ export const useDistributionStore = defineStore('distribution', () => {
 
   return {
     distributions,
-    volunteerDistributions,
     currentDistribution,
     loading,
+    error,
     fetchDistributions,
-    fetchDistribution,
+    fetchDistributionById,
     createDistribution,
     updateDistribution,
-    deleteDistribution,
     updateDistributionStatus,
-    fetchVolunteerDistributions
+    deleteDistribution
   }
 })
