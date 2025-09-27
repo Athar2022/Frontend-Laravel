@@ -1,44 +1,81 @@
 <template>
-  <nav class="bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+  <nav class="bg-white shadow-lg border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
-        <div class="flex">
+        <!-- Left side -->
+        <div class="flex items-center space-x-8">
           <!-- Logo -->
-          <div class="flex-shrink-0 flex items-center">
-            <router-link :to="{ name: 'Home' }" class="text-xl font-bold text-blue-600 dark:text-blue-400">
-              Humanitarian Aid
-            </router-link>
-          </div>
-          
+          <router-link
+            :to="{ name: 'Dashboard' }"
+            class="flex items-center space-x-3 text-2xl font-bold tracking-wide text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+          >
+            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <img 
+                src="@/assets/icon.png" 
+                alt="Humanitarian Aid Logo" 
+                class="w-6 h-6 object-contain"
+              />
+            </div>
+            <span>Humanitarian Aid</span>
+          </router-link>
+
           <!-- Navigation Links -->
-          <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+          <div class="hidden lg:flex lg:space-x-1">
             <router-link
               v-for="item in navigation"
               :key="item.name"
               :to="item.to"
-              class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200"
+              class="relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 group"
               :class="[
                 $route.name === item.name
-                  ? 'border-blue-500 text-gray-900 dark:text-white'
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                  ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 shadow-sm'
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-gray-800'
               ]"
             >
               {{ item.name }}
+              <div
+                v-if="$route.name === item.name"
+                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full"
+              ></div>
             </router-link>
           </div>
         </div>
-        
-        <!-- Right Section -->
-        <div class="flex items-center space-x-4">
-          <!-- Dark Mode Toggle -->
+
+        <!-- Right side -->
+        <div class="flex items-center space-x-3 right-actions">
+          <!-- Mobile menu button -->
+            <button
+            @click="isMobileMenuOpen = !isMobileMenuOpen"
+            class="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 transition-all duration-200"
+            :class="{ 'bg-gray-100 dark:bg-gray-800': isMobileMenuOpen }"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                v-if="!isMobileMenuOpen"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+              <path
+                v-else
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+
+          <!-- Dark mode toggle -->
           <button
             @click="toggleDarkMode"
-            class="p-2 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
+            class="p-2 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200 transition-all duration-200"
             :title="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
           >
             <svg
               v-if="isDarkMode"
-              class="h-6 w-6"
+              class="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -52,7 +89,7 @@
             </svg>
             <svg
               v-else
-              class="h-6 w-6"
+              class="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -65,14 +102,14 @@
               />
             </svg>
           </button>
-          
-          <!-- Notifications Bell -->
+
+          <!-- Notifications -->
           <router-link
             :to="{ name: 'Notifications' }"
-            class="p-2 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 relative transition-colors duration-200"
+            class="relative p-2 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200 transition-all duration-200"
             title="Notifications"
           >
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -82,115 +119,83 @@
             </svg>
             <span
               v-if="unreadNotifications > 0"
-              class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
+              class="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-bold text-white bg-red-600 rounded-full"
             >
               {{ unreadNotifications }}
             </span>
           </router-link>
-          
-          <!-- Profile Dropdown -->
-          <div class="relative ml-3">
-            <div class="flex items-center space-x-3">
-              <span class="hidden md:inline text-sm text-gray-700 dark:text-gray-300">
-                {{ user.name }}
-              </span>
-              <div class="relative">
+
+          <!-- User menu -->
+          <div class="relative" @mouseenter="openProfileMenu" @mouseleave="closeProfileMenu">
+            <button
+              @click="isProfileMenuOpen = !isProfileMenuOpen"
+              class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 user-trigger"
+            >
+              <div class="text-right hidden sm:block user-text">
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ user.name }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ user.role }}</p>
+              </div>
+              <div
+                class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium shadow-md ring-2 ring-white dark:ring-gray-800"
+              >
+                {{ userInitials }}
+              </div>
+            </button>
+
+            <!-- Dropdown menu -->
+            <div
+              v-if="isProfileMenuOpen"
+              v-click-outside="closeProfileMenu"
+              class="absolute right-0 mt-2 w-56 rounded-xl bg-white shadow-xl ring-1 ring-black/10 dark:bg-gray-800 dark:ring-gray-700 z-50 overflow-hidden"
+            >
+              <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.name }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+              </div>
+              <div class="py-1">
+                <router-link
+                  :to="{ name: 'Profile' }"
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                  @click="closeProfileMenu"
+                >
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Your Profile
+                </router-link>
                 <button
-                  @click="isProfileMenuOpen = !isProfileMenuOpen"
-                  class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                  aria-expanded="false"
-                  aria-haspopup="true"
+                  type="button"
+                  class="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                  @click="logout"
                 >
-                  <span class="sr-only">Open user menu</span>
-                  <div
-                    class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium"
-                  >
-                    {{ userInitials }}
-                  </div>
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Sign out
                 </button>
-                
-                <!-- Dropdown Menu -->
-                <div
-                  v-if="isProfileMenuOpen"
-                  v-click-outside="closeProfileMenu"
-                  class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 dark:ring-gray-700 z-50"
-                >
-                  <router-link
-                    :to="{ name: 'Profile' }"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    @click="closeProfileMenu"
-                  >
-                    Your Profile
-                  </router-link>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    @click="logout"
-                  >
-                    Sign out
-                  </a>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    
-    <!-- Mobile menu button -->
-    <div class="sm:hidden">
-      <button
-        @click="isMobileMenuOpen = !isMobileMenuOpen"
-        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-      >
-        <span class="sr-only">Open main menu</span>
-        <svg
-          class="block h-6 w-6"
-          :class="{ 'hidden': isMobileMenuOpen, 'block': !isMobileMenuOpen }"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-        <svg
-          class="block h-6 w-6"
-          :class="{ 'block': isMobileMenuOpen, 'hidden': !isMobileMenuOpen }"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
-    </div>
-    
-    <!-- Mobile menu, show/hide based on menu state -->
-    <div v-if="isMobileMenuOpen" class="sm:hidden">
-      <div class="pt-2 pb-3 space-y-1">
+
+    <!-- Mobile menu -->
+    <div class="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+      <div v-show="isMobileMenuOpen" class="px-4 py-2 space-y-1">
         <router-link
           v-for="item in navigation"
           :key="item.name"
           :to="item.to"
-          class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200"
+          class="flex items-center px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200"
           :class="[
             $route.name === item.name
-              ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-              : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+              : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
           ]"
           @click="isMobileMenuOpen = false"
         >
-          {{ item.name }}
+          <span>{{ item.name }}</span>
         </router-link>
       </div>
     </div>
@@ -198,16 +203,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/authStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import { useDark, useToggle } from '@vueuse/core'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 const isProfileMenuOpen = ref(false)
 const isMobileMenuOpen = ref(false)
-const unreadNotifications = ref(0)
 
 // Dark mode handling
 const isDark = useDark()
@@ -215,6 +221,7 @@ const toggleDark = useToggle(isDark)
 
 const isDarkMode = computed(() => isDark.value)
 const user = computed(() => authStore.user || {})
+const unreadNotifications = computed(() => notificationStore.unreadCount || 0)
 const userInitials = computed(() => {
   if (!user.value.name) return 'U'
   return user.value.name
@@ -238,8 +245,8 @@ const navigation = computed(() => {
  if (user.value.role === 'admin') {
     baseRoutes.push(
       { name: 'Donations', to: { name: 'Donations' } },
-      { name: 'Beneficiaries', to: { name: 'Beneficiaries' } },
-      { name: 'Volunteers', to: { name: 'Volunteers' } },
+      // { name: 'Beneficiaries', to: { name: 'Beneficiaries' } },
+      // { name: 'Volunteers', to: { name: 'Volunteers' } },
       { name: 'Users', to: { name: 'Users' } }
     )
   }
@@ -249,11 +256,20 @@ const navigation = computed(() => {
 
 function toggleDarkMode() {
   toggleDark()
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
   console.log('Dark mode toggled:', isDarkMode.value)
 }
 
 function closeProfileMenu() {
   isProfileMenuOpen.value = false
+}
+
+function openProfileMenu() {
+  isProfileMenuOpen.value = true
 }
 
 function closeMobileMenu() {
@@ -285,14 +301,18 @@ const vClickOutside = {
 // Fetch notifications count
 onMounted(async () => {
   try {
-    // سيتم تنفيذ هذا عندما تكون واجهة API جاهزة
-    // const response = await api.get('/notifications/unread-count')
-    // unreadNotifications.value = response.data.count
-    unreadNotifications.value = 3 // قيمة تجريبية
+    await notificationStore.fetchUnreadCount()
   } catch (error) {
     console.error('Failed to fetch notifications count:', error)
+    // Set fallback data if API fails
+    notificationStore.unreadCount = 3
   }
 })
+
+// Watch for changes in notifications and update count
+watch(() => notificationStore.notifications, () => {
+  notificationStore.updateUnreadCount()
+}, { deep: true })
 
 // إغلاق القوائم المنسدلة عند تغيير المسار
 const unwatch = router.afterEach(() => {
@@ -304,3 +324,92 @@ onUnmounted(() => {
   unwatch()
 })
 </script>
+
+<style scoped>
+/* Normalize navbar container and avoid visual overlap */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+/* Ensure consistent height and alignment */
+.flex.justify-between.h-16 {
+  min-height: 64px; /* h-16 = 64px */
+  align-items: center;
+}
+
+/* Tighter, consistent spacing between left cluster (logo + links) */
+.flex.items-center.space-x-8 {
+  column-gap: 1.5rem; /* ~ space-x-6 visually */
+}
+
+/* Keep brand text on one line to avoid wrapping */
+nav a[aria-current],
+nav a.router-link-active,
+nav a.router-link-exact-active {
+  white-space: nowrap;
+}
+
+/* Improve dropdown/menu stacking */
+.relative > .absolute {
+  z-index: 50;
+}
+
+/* Right side actions layout tuning */
+.right-actions {
+  gap: 0.75rem; /* base gap */
+}
+
+.right-actions > * {
+  flex-shrink: 0; /* prevent icons/buttons from shrinking */
+}
+
+.user-trigger {
+  max-width: 220px; /* constrain user area to avoid overflow */
+}
+
+.user-text {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .right-actions { gap: 0.875rem; }
+  .user-trigger { max-width: 260px; }
+  .user-text { max-width: 170px; }
+}
+
+@media (min-width: 1024px) {
+  .right-actions { gap: 1rem; }
+  .user-text { max-width: 200px; }
+}
+
+/* Mobile menu: overlay neatly under the navbar instead of collapsing content */
+nav > .lg\:hidden {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 30;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* Reset positioning on large screens (menu hidden anyway) */
+@media (min-width: 1024px) {
+  nav > .lg\:hidden {
+    position: static;
+    box-shadow: none;
+  }
+}
+
+/* Better touch target spacing on small screens */
+@media (max-width: 639.98px) {
+  .px-4.py-3.rounded-lg.text-base.font-medium.transition-colors.duration-200 {
+    padding-top: 0.875rem;  /* 14px */
+    padding-bottom: 0.875rem;
+  }
+}
+</style>

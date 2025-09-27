@@ -138,8 +138,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useDonationStore } from '@/stores/donation'
-import { useAuthStore } from '@/stores/auth'
+import { useDonationStore } from '@/stores/donationStore'
+import { useAuthStore } from '@/stores/authStore'
 
 const donationStore = useDonationStore()
 const authStore = useAuthStore()

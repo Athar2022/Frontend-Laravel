@@ -62,7 +62,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useNotificationStore } from '@/stores/notification'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const notificationStore = useNotificationStore()
 const loading = ref(false)
