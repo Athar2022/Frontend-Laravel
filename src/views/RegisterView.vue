@@ -15,6 +15,7 @@
           </router-link>
         </p>
       </div>
+
       <form class="mt-8 space-y-6" @submit.prevent="handleRegister">
         <div class="space-y-4">
           <div>
@@ -25,11 +26,13 @@
               id="name"
               v-model="form.name"
               type="text"
+              autocomplete="name"
               required
               class="input-field mt-1"
               placeholder="Enter your full name"
             />
           </div>
+
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email address
@@ -38,11 +41,13 @@
               id="email"
               v-model="form.email"
               type="email"
+              autocomplete="email"
               required
               class="input-field mt-1"
               placeholder="Enter your email"
             />
           </div>
+
           <div>
             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Password
@@ -51,11 +56,13 @@
               id="password"
               v-model="form.password"
               type="password"
+              autocomplete="new-password"
               required
               class="input-field mt-1"
               placeholder="Enter your password"
             />
           </div>
+
           <div>
             <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Confirm Password
@@ -64,11 +71,13 @@
               id="password_confirmation"
               v-model="form.password_confirmation"
               type="password"
+              autocomplete="new-password"
               required
               class="input-field mt-1"
               placeholder="Confirm your password"
             />
           </div>
+
           <div>
             <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Role
@@ -85,21 +94,24 @@
               <option value="admin">Admin</option>
             </select>
           </div>
+
           <div>
             <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Phone Number (Optional)
+              Phone Number
             </label>
             <input
               id="phone"
               v-model="form.phone"
               type="tel"
+              autocomplete="tel"
               class="input-field mt-1"
               placeholder="Enter your phone number"
             />
           </div>
+
           <div>
             <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Address (Optional)
+              Address 
             </label>
             <textarea
               id="address"
@@ -111,6 +123,7 @@
           </div>
         </div>
 
+        <!-- Error Message -->
         <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
           {{ errorMessage }}
         </div>
@@ -147,7 +160,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/authStore'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -176,23 +189,25 @@ async function handleRegister() {
   }
 
   const result = await authStore.register(form)
-  
+
   if (result.success) {
-    // Show success message
-    if (window.showToast) {
-      window.showToast('success', 'Success', 'Account created successfully!')
-    }
-    
-    // Redirect to dashboard
+    // Show success toast if exists
+    if (window.showToast) window.showToast('success', 'Success', 'Account created successfully!')
     router.push({ name: 'Dashboard' })
   } else {
-    // Show error message
-    errorMessage.value = result.message
-    if (window.showToast) {
-      window.showToast('error', 'Error', result.message)
+    if (result.errors) {
+      // Handle validation errors
+      let errorText = ''
+      for (const field in result.errors) {
+        errorText += result.errors[field].join(', ') + '\n'
+      }
+      errorMessage.value = errorText
+    } else {
+      errorMessage.value = result.message || 'Failed to create account'
     }
+    if (window.showToast) window.showToast('error', 'Error', errorMessage.value)
   }
-  
+
   loading.value = false
 }
 </script>

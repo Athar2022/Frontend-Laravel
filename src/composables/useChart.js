@@ -1,4 +1,7 @@
 import { ref } from 'vue'
+import { Chart, registerables } from 'chart.js'
+
+Chart.register(...registerables)
 
 export function useChart() {
   const chartInstance = ref(null)

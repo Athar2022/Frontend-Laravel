@@ -173,10 +173,11 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useDistributionStore } from '@/stores/distribution'
+import { useDistributionStore } from '@/stores/distributionStore'
 import { useUserStore } from '@/stores/user'
-import { useDonationStore } from '@/stores/donation'
-import { useAuthStore } from '@/stores/auth'
+import { useDonationStore } from '@/stores/donationStore'
+import { useAuthStore } from '@/stores/authStore'
+
 
 const distributionStore = useDistributionStore()
 const userStore = useUserStore()

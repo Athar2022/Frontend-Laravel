@@ -12,7 +12,7 @@
       <button
         v-if="user.role === 'beneficiary'"
         @click="showCreateModal = true"
-        class="btn-primary"
+        class="btn-primary add-request-btn"
       >
         <svg
           class="w-5 h-5 mr-2"
@@ -32,8 +32,8 @@
     </div>
 
     <!-- Filters -->
-    <div class="card mb-6">
-      <div class="flex flex-wrap gap-4">
+    <div class="card filters-card">
+      <div class="flex flex-wrap gap-4 filters">
         <select v-model="filters.status" class="input-field w-full md:w-auto">
           <option value="">All Status</option>
           <option value="pending">Pending</option>
@@ -229,7 +229,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch, reactive } from "vue";
-import { useAuthStore } from "@/stores/auth";
+import { useAuthStore } from "@/stores/authStore";
 import { useAidRequestStore } from "@/stores/aidRequest";
 import CreateRequestModal from "@/components/requests/CreateRequestModal.vue";
 import ViewRequestModal from "@/components/requests/ViewRequestModal.vue";
@@ -410,3 +410,43 @@ function prevPage() {
   }
 }
 </script>
+
+<style scoped>
+/* Add clear separation between filters and requests list */
+.filters-card {
+  margin-bottom: 1.5rem; /* 24px */
+}
+
+/* Add Request button: slightly larger, calm spacing */
+.add-request-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Filters: enforce black text inside input/select as requested */
+.filters select,
+.filters input[type="text"] {
+  color: #111827; /* text-gray-900 */
+}
+
+.filters select::placeholder,
+.filters input[type="text"]::placeholder {
+  color: #111827; /* ensure placeholder appears black as well */
+  opacity: 0.7;
+}
+
+/* On dark mode keep text readable but prefer neutral black-ish look as requested */
+.dark .filters select,
+.dark .filters input[type="text"] {
+  color: #e5e7eb; /* text-gray-200 for dark to ensure contrast */
+}
+
+.dark .filters select::placeholder,
+.dark .filters input[type="text"]::placeholder {
+  color: #e5e7eb;
+  opacity: 0.8;
+}
+</style>
